@@ -1,0 +1,18 @@
+name: chips_choice
+description: Vendored fork of flutter_chips_choice (accentColor → colorScheme for Flutter 3.10+).
+version: 2.0.1+ngen.1
+publish_to: "none"
+
+environment:
+  sdk: ">=2.17.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

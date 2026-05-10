@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "344002562528",
+    "project_id": "ngen-8ade8",
+    "storage_bucket": "ngen-8ade8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344002562528:android:02c3843b23406660250385",
+        "android_client_info": {
+          "package_name": "ngenapp.web.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkEbaRcE_pxLayPQzhVjre87Lo3g5Cjho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

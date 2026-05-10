@@ -1,0 +1,90 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// AGP 8+ requires `namespace` on every Android library. Older plugins only had
+// `package` in AndroidManifest.xml — infer namespace before AGP validates variants.
+subprojects { subproject ->
+    subproject.afterEvaluate {
+        if (!subproject.plugins.hasPlugin("com.android.library")) {
+            return
+        }
+        def androidExt = subproject.extensions.findByName("android")
+        if (androidExt == null) {
+            return
+        }
+        if (androidExt.namespace != null && !androidExt.namespace.toString().isEmpty()) {
+            return
+        }
+        def manifestFile = subproject.file("src/main/AndroidManifest.xml")
+        if (!manifestFile.exists()) {
+            return
+        }
+        def text = manifestFile.getText("UTF-8")
+        def matcher = text =~ /package\s*=\s*"([^"]+)"/
+        if (matcher.find()) {
+            androidExt.namespace = matcher.group(1).trim()
+        }
+    }
+}
+
+// Some older plugins still compile Java as 1.8 while Kotlin defaults to a newer
+// JVM target; AGP then fails the build. Align library modules with the app.
+subprojects { subproject ->
+    subproject.afterEvaluate {
+        if (!subproject.plugins.hasPlugin("com.android.library")) {
+            return
+        }
+        def androidExt = subproject.extensions.findByName("android")
+        if (androidExt == null) {
+            return
+        }
+        // Java 17 bytecode requires compileSdk >= 30; some legacy plugins still pin 29.
+        def minCompileSdk = 34
+        def curSdk = null
+        try {
+            curSdk = androidExt.compileSdk
+        } catch (Exception ignored) {
+        }
+        if (curSdk == null) {
+            try {
+                curSdk = androidExt.compileSdkVersion
+            } catch (Exception ignored) {
+            }
+        }
+        if (curSdk instanceof Integer && curSdk < minCompileSdk) {
+            try {
+                androidExt.compileSdk = minCompileSdk
+            } catch (Exception ignored) {
+                try {
+                    androidExt.compileSdkVersion = minCompileSdk
+                } catch (Exception ignored2) {
+                }
+            }
+        }
+        androidExt.compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
+        if (subproject.plugins.hasPlugin("org.jetbrains.kotlin.android")) {
+            androidExt.kotlinOptions {
+                jvmTarget = JavaVersion.VERSION_17.toString()
+            }
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.layout.buildDirectory
+}
