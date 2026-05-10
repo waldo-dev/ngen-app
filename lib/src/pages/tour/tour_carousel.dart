@@ -7,6 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/storage/localstorage_compat.dart';
+import 'package:app/src/util/firestore_compat.dart';
 
 class TourCarouselWidget extends StatefulWidget {
   final List<Map<String, dynamic>> tourList;
@@ -59,8 +60,9 @@ class TourCarouselWidgetState extends State<TourCarouselWidget> {
     setState(() {
       selectedTour = widget.active;
     });
+    final loc = getLanguageCodeAmazon(storage.getItem('locale') ?? 'en');
     imageSliders = widget.tourList
-        .map((item) => SimpleTourCard(item['id'], item['image'] ?? '', item['title'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')],
+        .map((item) => SimpleTourCard(item['id'], item['image'] ?? '', localizedFirestoreString(item['title'], loc),
             item['categories'], item['tier'], item['likeUsers'] ?? {}, widget.offline))
         .toList();
 
@@ -68,12 +70,12 @@ class TourCarouselWidgetState extends State<TourCarouselWidget> {
     } else {
       expandedCard = TourCard(
           widget.tourList[0]['image'],
-          widget.tourList[0]['title'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')],
-          widget.tourList[0]['description'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')],
+          localizedFirestoreString(widget.tourList[0]['title'], loc),
+          localizedFirestoreString(widget.tourList[0]['description'], loc),
           widget.tourList[0]['categories'],
           widget.tourList[0]['tier'],
           widget.tourList[0]['id'],
-          widget.tourList[0]['createdBy'],
+          tourCreatedByAsString(widget.tourList[0]['createdBy']),
           widget.tourList[0]['likeUsers'] ?? {},
           widget.offline);
     }
@@ -81,12 +83,12 @@ class TourCarouselWidgetState extends State<TourCarouselWidget> {
     expandedCards = widget.tourList
         .map((item) => TourCard(
             item['image'] ?? '',
-            item['title'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')],
-            item['description'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')],
+            localizedFirestoreString(item['title'], loc),
+            localizedFirestoreString(item['description'], loc),
             item['categories'],
             item['tier'],
             item['id'],
-            item['createdBy'],
+            tourCreatedByAsString(item['createdBy']),
             item['likeUsers'] ?? {},
             widget.offline))
         .toList();

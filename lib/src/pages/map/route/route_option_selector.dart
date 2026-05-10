@@ -1,5 +1,6 @@
 import 'package:app/src/pages/tour/simple_tour_card.dart';
 import 'package:app/src/util/colors.dart';
+import 'package:app/src/util/firestore_compat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/storage/localstorage_compat.dart';
@@ -154,6 +155,10 @@ class _RouteItem extends State<RouteItem> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = getLanguageCodeAmazon(storage.getItem('locale') ?? 'en');
+    final titleStr = localizedFirestoreString(widget.tourList[widget.index]['title'], loc);
+    final titleDisplay =
+        titleStr.isNotEmpty ? titleStr : (widget.tourList[widget.index]['name']?.toString() ?? '');
     return new GestureDetector(
       onTap: () {
         widget.callback();
@@ -168,9 +173,7 @@ class _RouteItem extends State<RouteItem> {
                 (widget.tourList[widget.index]["photoReference"] != ""
                     ? 'https://maps.googleapis.com/maps/api/place/photo?photoreference=${widget.tourList[widget.index]["photoReference"]}&sensor=false&maxheight=400&maxwidth=400&key=AIzaSyDZ3zUNueHCkw3jwMXfwIpam0NCJFKG1I4'
                     : "https://live.staticflickr.com/3769/11393976723_15eb9d48c7_b.jpg"),
-            widget.tourList[widget.index]['title'] != null
-                ? widget.tourList[widget.index]['title'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')]
-                : widget.tourList[widget.index]['name'],
+            titleDisplay,
             widget.tourList[widget.index]['categories'],
             widget.tourList[widget.index]['tier'] ?? 0,
             widget.tourList[widget.index]['likeUsers'] ?? {}),

@@ -10,6 +10,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:path_provider/path_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/core/storage/localstorage_compat.dart';
+import 'package:app/src/util/firestore_compat.dart';
 
 class DownloadTourWidget extends StatefulWidget {
   final String tourId;
@@ -160,7 +161,7 @@ class DownloadTourWidgetState extends State<DownloadTourWidget> with TickerProvi
 
                                         var locale = getLanguageCodeAmazon(storage.getItem('locale') ?? 'en');
                                         for (var i = 0; i < steps.size; i++) {
-                                          print("ETAPA: " + (steps.docs[i].get('title')[locale]));
+                                          print("ETAPA: " + localizedFirestoreString(steps.docs[i].get('title'), locale));
                                           if (steps.docs[i].get('image') != '') {
                                             var response = await http.get(Uri.parse(steps.docs[i].get('image')));
                                             File stepImageFile =
@@ -177,16 +178,21 @@ class DownloadTourWidgetState extends State<DownloadTourWidget> with TickerProvi
 
                                           Map<String, dynamic> stepJson = steps.docs[i].data() as Map<String, dynamic>;
                                           stepJson['id'] = steps.docs[i].id;
-                                          Map<String, dynamic> audios = stepJson['audio'];
+                                          final rawAudio = stepJson['audio'];
+                                          final audioUrl = localizedFirestoreString(rawAudio, locale);
 
                                           print("Audio: " + locale);
-                                          var audioresponse = await http.get(Uri.parse(audios[locale]));
-                                          File audioFile =
-                                              await File(documentDirectory.path + '/tours/${widget.tourId}/${steps.docs[i].id}/${locale}/audiofile')
-                                                  .create(recursive: true);
-                                          audioFile.writeAsBytesSync(audioresponse.bodyBytes);
-                                          stepJson['audio'][locale] =
-                                              documentDirectory.path + '/tours/${widget.tourId}/${steps.docs[i].id}/${locale}/audiofile';
+                                          if (audioUrl.isNotEmpty) {
+                                            var audioresponse = await http.get(Uri.parse(audioUrl));
+                                            File audioFile = await File(
+                                                    documentDirectory.path + '/tours/${widget.tourId}/${steps.docs[i].id}/${locale}/audiofile')
+                                                .create(recursive: true);
+                                            audioFile.writeAsBytesSync(audioresponse.bodyBytes);
+                                            stepJson['audio'] = Map<String, dynamic>.from(
+                                                rawAudio is Map ? Map<String, dynamic>.from(rawAudio) : <String, dynamic>{});
+                                            stepJson['audio'][locale] =
+                                                documentDirectory.path + '/tours/${widget.tourId}/${steps.docs[i].id}/${locale}/audiofile';
+                                          }
 
                                           stepJson['image'] = documentDirectory.path + '/tours/${widget.tourId}/stepimage${steps.docs[i].id}';
                                           stepList.add(stepJson);

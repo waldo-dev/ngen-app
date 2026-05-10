@@ -5,6 +5,7 @@ import 'package:app/src/pages/tour/tour_card.dart';
 import 'package:flutter/material.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/core/storage/localstorage_compat.dart';
+import 'package:app/src/util/firestore_compat.dart';
 
 class TourListWidget extends StatefulWidget {
   final List<Map<String, dynamic>> tourList;
@@ -32,22 +33,22 @@ class TourListWidgetState extends State<TourListWidget> {
 
     imageSliders = widget.tourList
         .map((item) => SimpleTourCard(
-            item['id'], item['image'], item['title'][locale], item['categories'], item['tier'], item['likeUsers'] ?? {}, widget.offline))
+            item['id'], item['image'], localizedFirestoreString(item['title'], locale), item['categories'], item['tier'], item['likeUsers'] ?? {}, widget.offline))
         .toList();
     expandedCard = TourCard(
         widget.tourList[0]['image'],
-        widget.tourList[0]['title'][locale],
-        widget.tourList[0]['description'][locale],
+        localizedFirestoreString(widget.tourList[0]['title'], locale),
+        localizedFirestoreString(widget.tourList[0]['description'], locale),
         widget.tourList[0]['categories'],
         widget.tourList[0]['tier'],
         widget.tourList[0]['id'],
-        widget.tourList[0]['createdBy'],
+        tourCreatedByAsString(widget.tourList[0]['createdBy']),
         widget.tourList[0]['likeUsers'] ?? {},
         widget.offline);
 
     expandedCards = widget.tourList
-        .map((item) => TourCard(item['image'], item['title'][locale], item['description'][locale], item['categories'], item['tier'], item['id'],
-            item['createdBy'], item['likeUsers'] ?? {}, widget.offline))
+        .map((item) => TourCard(item['image'], localizedFirestoreString(item['title'], locale), localizedFirestoreString(item['description'], locale), item['categories'], item['tier'], item['id'],
+            tourCreatedByAsString(item['createdBy']), item['likeUsers'] ?? {}, widget.offline))
         .toList();
   }
 
@@ -74,12 +75,12 @@ class TourListWidgetState extends State<TourListWidget> {
               insetPadding: EdgeInsets.all(10),
               child: TourCard(
                   widget.tourList[index]['image'],
-                  widget.tourList[index]['title'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')],
-                  widget.tourList[index]['description'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')],
+                  localizedFirestoreString(widget.tourList[index]['title'], getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')),
+                  localizedFirestoreString(widget.tourList[index]['description'], getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')),
                   widget.tourList[index]['categories'],
                   widget.tourList[index]['tier'],
                   widget.tourList[index]['id'],
-                  widget.tourList[index]['createdBy'],
+                  tourCreatedByAsString(widget.tourList[index]['createdBy']),
                   widget.tourList[index]['likeUsers'] ?? {},
                   widget.offline),
             ));

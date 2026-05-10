@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:app/src/pages/audio/audio.dart';
 import 'package:app/src/util/colors.dart';
+import 'package:app/src/util/firestore_compat.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/storage/localstorage_compat.dart';
@@ -110,6 +111,7 @@ class StepsCarouselWidgetState extends State<StepsCarouselWidget> {
                           })
                         }),
                 items: widget.steps.map((e) {
+                  final loc = getLanguageCodeAmazon(storage.getItem('locale') ?? 'en');
                   return Builder(
                     builder: (BuildContext context) {
                       return Container(
@@ -122,7 +124,7 @@ class StepsCarouselWidgetState extends State<StepsCarouselWidget> {
                                 Container(
                                   padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                                   child: Text(
-                                    e['title'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')] ?? '',
+                                    localizedFirestoreString(e['title'], loc),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20.0,
@@ -136,7 +138,7 @@ class StepsCarouselWidgetState extends State<StepsCarouselWidget> {
                                   margin: EdgeInsets.symmetric(horizontal: 20.0),
                                   child: SingleChildScrollView(
                                       child: Text(
-                                    e['description'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')] ?? '',
+                                    localizedFirestoreString(e['description'], loc),
                                     style: TextStyle(color: AppColors.white),
                                   )),
                                 ),
@@ -146,7 +148,7 @@ class StepsCarouselWidgetState extends State<StepsCarouselWidget> {
                                     Expanded(
                                       flex: 12,
                                       child: AudioWidget(
-                                        e['audio'][getLanguageCodeAmazon(storage.getItem('locale') ?? 'en')] ?? '',
+                                        localizedFirestoreString(e['audio'], loc),
                                       ),
                                     ),
                                     // Expanded(

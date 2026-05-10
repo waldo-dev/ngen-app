@@ -12,6 +12,7 @@ import 'package:app/src/pages/tour/tour_carousel.dart';
 import 'package:app/src/templates/action_button.dart';
 import 'package:app/src/util/colors.dart';
 import 'package:app/src/values/constants.dart';
+import 'package:app/src/util/firestore_compat.dart';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -212,7 +213,7 @@ class MapScreenState extends State<MapScreen> {
       var index = i;
       var locale = getLanguageCodeAmazon(storage.getItem('locale') ?? 'en');
       _markers.add(
-        NgenMarker(toursLoaded[i]['id'], toursLoaded[i]['title'][locale],
+        NgenMarker(toursLoaded[i]['id'], localizedFirestoreString(toursLoaded[i]['title'], locale),
             LatLng(toursLoaded[i]['location']['latitude'] + .0, toursLoaded[i]['location']['longitude'] + .0), () async {
           if (stepSeparate) {
             if (offline) {
@@ -220,7 +221,7 @@ class MapScreenState extends State<MapScreen> {
               _stepsMarkers.clear();
               for (var j = 0; j < stepsLoaded.length; j++) {
                 // print(j);
-                _stepsMarkers.add(NgenStepMarker(stepsLoaded[j]['id'], stepsLoaded[j]['title'][locale],
+                _stepsMarkers.add(NgenStepMarker(stepsLoaded[j]['id'], localizedFirestoreString(stepsLoaded[j]['title'], locale),
                     LatLng(stepsLoaded[j]['location']['latitude'] + .0, stepsLoaded[j]['location']['longitude'] + .0), j, () {
                   setState(() {
                     active = index;
@@ -232,7 +233,7 @@ class MapScreenState extends State<MapScreen> {
               _stepsMarkers.clear();
               for (var j = 0; j < stepsLoaded.docs.length; j++) {
                 // print(j);
-                _stepsMarkers.add(NgenStepMarker(stepsLoaded.docs[j].id, stepsLoaded.docs[j].get('title')[locale],
+                _stepsMarkers.add(NgenStepMarker(stepsLoaded.docs[j].id, localizedFirestoreString(stepsLoaded.docs[j].get('title'), locale),
                     LatLng(stepsLoaded.docs[j].get('location')['latitude'] + .0, stepsLoaded.docs[j].get('location')['longitude'] + .0), j, () {
                   setState(() {
                     active = index;
