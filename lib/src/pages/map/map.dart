@@ -212,17 +212,23 @@ class MapScreenState extends State<MapScreen> {
       var tourId = toursLoaded[i]['id'];
       var index = i;
       var locale = getLanguageCodeAmazon(storage.getItem('locale') ?? 'en');
+      final tourCoords = tourLocationFromFirestore(toursLoaded[i]['location']);
+      if (tourCoords == null) {
+        continue;
+      }
       _markers.add(
         NgenMarker(toursLoaded[i]['id'], localizedFirestoreString(toursLoaded[i]['title'], locale),
-            LatLng(toursLoaded[i]['location']['latitude'] + .0, toursLoaded[i]['location']['longitude'] + .0), () async {
+            LatLng(tourCoords.latitude, tourCoords.longitude), () async {
           if (stepSeparate) {
             if (offline) {
               var stepsLoaded = toursLoaded[i]['steps'];
               _stepsMarkers.clear();
               for (var j = 0; j < stepsLoaded.length; j++) {
                 // print(j);
+                final stepCoords = tourLocationFromFirestore(stepsLoaded[j]['location']);
+                if (stepCoords == null) continue;
                 _stepsMarkers.add(NgenStepMarker(stepsLoaded[j]['id'], localizedFirestoreString(stepsLoaded[j]['title'], locale),
-                    LatLng(stepsLoaded[j]['location']['latitude'] + .0, stepsLoaded[j]['location']['longitude'] + .0), j, () {
+                    LatLng(stepCoords.latitude, stepCoords.longitude), j, () {
                   setState(() {
                     active = index;
                   });
@@ -233,8 +239,10 @@ class MapScreenState extends State<MapScreen> {
               _stepsMarkers.clear();
               for (var j = 0; j < stepsLoaded.docs.length; j++) {
                 // print(j);
+                final stepCoords = tourLocationFromFirestore(stepsLoaded.docs[j].get('location'));
+                if (stepCoords == null) continue;
                 _stepsMarkers.add(NgenStepMarker(stepsLoaded.docs[j].id, localizedFirestoreString(stepsLoaded.docs[j].get('title'), locale),
-                    LatLng(stepsLoaded.docs[j].get('location')['latitude'] + .0, stepsLoaded.docs[j].get('location')['longitude'] + .0), j, () {
+                    LatLng(stepCoords.latitude, stepCoords.longitude), j, () {
                   setState(() {
                     active = index;
                   });

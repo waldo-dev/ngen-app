@@ -1,3 +1,29 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+/// Normalized map coordinates from Firestore `location` (Map or GeoPoint).
+class TourLatLng {
+  final double latitude;
+  final double longitude;
+
+  const TourLatLng(this.latitude, this.longitude);
+}
+
+/// Returns null if [location] is missing or cannot be parsed (legacy bad data).
+TourLatLng? tourLocationFromFirestore(dynamic location) {
+  if (location == null) return null;
+  if (location is GeoPoint) {
+    return TourLatLng(location.latitude, location.longitude);
+  }
+  if (location is Map) {
+    final m = Map<String, dynamic>.from(location);
+    final lat = m['latitude'] ?? m['lat'];
+    final lng = m['longitude'] ?? m['lng'] ?? m['long'] ?? m['longitude '];
+    if (lat is! num || lng is! num) return null;
+    return TourLatLng(lat.toDouble(), lng.toDouble());
+  }
+  return null;
+}
+
 /// Tour documents should store `createdBy` as a Firebase Auth uid string; legacy or mistyped
 /// Firestore data may use other types (for example Timestamp), which must not be passed where a String is required.
 String tourCreatedByAsString(dynamic raw) {
