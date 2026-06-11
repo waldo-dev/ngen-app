@@ -1,4 +1,5 @@
-﻿import 'package:app/src/model/BottomNavBarItem.dart';
+﻿import 'package:app/core/theme/ngen_theme.dart';
+import 'package:app/src/model/BottomNavBarItem.dart';
 import 'package:app/src/pages/map/map.dart';
 import 'package:app/src/pages/profile/settings.dart';
 import 'package:app/src/pages/search.dart';
@@ -46,7 +47,7 @@ class _NavigationState extends State<Navigation> {
     tabs.add(BottomNavBarItem(
       icon: "assets/images/navigation/search.svg",
       title: (AppLocalizations.of(context)!.titleExplore.toUpperCase()),
-      textStyle: TextStyle(fontFamily: "Open Sans", fontSize: 9, fontWeight: FontWeight.bold),
+      textStyle: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
       activeColorPrimary: AppColors.primary,
       inactiveColorPrimary: AppColors.secondary,
     ));
@@ -54,7 +55,7 @@ class _NavigationState extends State<Navigation> {
     tabs.add(BottomNavBarItem(
       icon: "assets/images/navigation/map.svg",
       title: (AppLocalizations.of(context)!.titleMap.toUpperCase()),
-      textStyle: TextStyle(fontFamily: "Open Sans", fontSize: 9, fontWeight: FontWeight.bold),
+      textStyle: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
       activeColorPrimary: AppColors.primary,
       inactiveColorPrimary: AppColors.secondary,
     ));
@@ -70,7 +71,7 @@ class _NavigationState extends State<Navigation> {
     tabs.add(BottomNavBarItem(
       icon: "assets/images/navigation/user.svg",
       title: (AppLocalizations.of(context)!.titleProfile.toUpperCase()),
-      textStyle: TextStyle(fontFamily: "Open Sans", fontSize: 9, fontWeight: FontWeight.bold),
+      textStyle: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
       activeColorPrimary: AppColors.primary,
       inactiveColorPrimary: AppColors.secondary,
     ));
@@ -140,11 +141,11 @@ class CustomNavBarWidget extends StatelessWidget {
     required this.onItemSelected,
   });
 
-  Widget _buildItem(BottomNavBarItem item, bool isSelected) {
+  Widget _buildItem(BuildContext context, BottomNavBarItem item, bool isSelected) {
     return Container(
       alignment: Alignment.center,
       height: 60.0,
-      color: isSelected ? Color.fromARGB(255, 243, 244, 250) : Colors.transparent,
+      color: isSelected ? AppColors.navSelected : Colors.transparent,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -172,13 +173,11 @@ class CustomNavBarWidget extends StatelessWidget {
               child: FittedBox(
                   child: Text(
                 item.title!,
-                style: TextStyle(
-                    color: isSelected
-                        ? (item.activeColorSecondary == null ? item.activeColorPrimary : item.activeColorSecondary)
-                        : item.inactiveColorPrimary,
-                    fontWeight: isSelected ? (item.activeColorSecondary == null ? FontWeight.w700 : FontWeight.w700) : FontWeight.w600,
-                    fontFamily: "Open Sans",
-                    fontSize: 9.0),
+                style: NgenTheme.navLabel(context, selected: isSelected).copyWith(
+                  color: isSelected
+                      ? (item.activeColorSecondary ?? item.activeColorPrimary)
+                      : item.inactiveColorPrimary,
+                ),
               )),
             ),
           )
@@ -214,7 +213,7 @@ class CustomNavBarWidget extends StatelessWidget {
                 onTap: () {
                   this.onItemSelected(index);
                 },
-                child: _buildItem(item, selectedIndex == index),
+                child: _buildItem(context, item, selectedIndex == index),
               ),
             );
           }).toList(),

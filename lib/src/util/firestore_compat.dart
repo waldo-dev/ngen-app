@@ -31,6 +31,40 @@ String tourCreatedByAsString(dynamic raw) {
   return '';
 }
 
+int tourPriceFromDoc(Map<String, dynamic> data) {
+  final raw = data['priceCents'] ?? data['price'];
+  if (raw is num) return raw.toInt();
+  return 0;
+}
+
+String tourCurrencyFromDoc(Map<String, dynamic> data) {
+  final currency = data['currency'];
+  return currency is String && currency.trim().isNotEmpty ? currency.trim() : 'CLP';
+}
+
+bool tourIsPresentationFromDoc(Map<String, dynamic> data) {
+  return data['isPresentation'] == true;
+}
+
+/// Por defecto true (tours legacy sin campo).
+bool tourShowOnMapFromDoc(Map<String, dynamic> data) {
+  return data['showOnMap'] != false;
+}
+
+bool tourIsActiveCatalogEntry(Map<String, dynamic> data) {
+  if (data['active'] != true) return false;
+  final stepCount = data['stepCount'];
+  if (stepCount is num && stepCount <= 0) return false;
+  return true;
+}
+
+/// Tours con pin en mapa: publicados, visibles en mapa y con coordenadas válidas.
+bool tourEligibleForMap(Map<String, dynamic> data) {
+  if (!tourIsActiveCatalogEntry(data)) return false;
+  if (!tourShowOnMapFromDoc(data)) return false;
+  return tourLocationFromFirestore(data['location']) != null;
+}
+
 /// Firestore fields like `title`, `description`, `audio`: map `{ "en": "...", "es": "..." }`.
 /// Returns [locale] if present, else [fallbackLocale], else first non-empty value. Never throws if [field] is null.
 String localizedFirestoreString(dynamic field, String locale, {String fallbackLocale = 'en'}) {

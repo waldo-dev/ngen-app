@@ -1,5 +1,6 @@
 ﻿import 'dart:ui';
 
+import 'package:app/core/theme/ngen_theme.dart';
 import 'package:app/src/pages/tour/tour_carousel.dart';
 import 'package:app/src/util/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -81,11 +82,7 @@ class _ExploreWidgetState extends State<ExploreWidget> {
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 48),
                 child: Text(
                   AppLocalizations.of(context)!.subtitleRecommend,
-                  style: TextStyle(
-                    color: AppColors.font_light,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: NgenTheme.sectionHeader(context),
                 ),
               ),
             ),
@@ -120,11 +117,7 @@ class _ExploreWidgetState extends State<ExploreWidget> {
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 48),
                 child: Text(
                   AppLocalizations.of(context)!.subtitlePopular,
-                  style: TextStyle(
-                    color: AppColors.font_light,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: NgenTheme.sectionHeader(context),
                 ),
               ),
             ),
@@ -159,18 +152,20 @@ class _ExploreWidgetState extends State<ExploreWidget> {
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 48),
                 child: Text(
                   AppLocalizations.of(context)!.subtitleRestaurants,
-                  style: TextStyle(
-                    color: AppColors.font_light,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: NgenTheme.sectionHeader(context),
                 ),
               ),
             ),
           ],
         ),
         StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: tours.doc('cl').collection('list').where('categories', arrayContains: 'restaurant').limit(10).snapshots(),
+          stream: tours
+              .doc('cl')
+              .collection('list')
+              .where('active', isEqualTo: true)
+              .where('categories', arrayContains: 'restaurant')
+              .limit(10)
+              .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
             if (snapshot.hasError) {
               return Text('Something went wrong');

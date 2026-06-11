@@ -1,4 +1,5 @@
-﻿import 'package:app/src/pages/profile/settings.dart';
+﻿import 'package:app/core/theme/ngen_theme.dart';
+import 'package:app/src/pages/profile/login/auth_navigation.dart';
 import 'package:app/src/util/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +8,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
-  _SignUpScreenState createState() => _SignUpScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
@@ -16,216 +19,162 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   bool loading = false;
-  FirebaseAuth auth = FirebaseAuth.instance;
 
-  void launchSnackbar(String text) {
-    final snackBar = SnackBar(
-      content: Text(text),
-    );
-
-    // Find the ScaffoldMessenger in the widget tree
-    // and use it to show a SnackBar.
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 
-  void signUp() async {
-    setState(() {
-      loading = true;
-    });
+  void launchSnackbar(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
 
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: usernameController.text, password: passwordController.text);
-      await FirebaseAuth.instance.signInWithEmailAndPassword(email: usernameController.text, password: passwordController.text);
+  String _passwordMismatchMessage(BuildContext context) {
+    final code = Localizations.localeOf(context).languageCode;
+    return code == 'es' ? 'Las contraseñas no coinciden' : 'Passwords do not match';
+  }
 
-      launchSnackbar(AppLocalizations.of(context)!.createUserMessage);
+  Future<void> signUp() async {
+    final email = usernameController.text.trim();
+    final password = passwordController.text;
+    final confirm = confirmPasswordController.text;
 
-      Navigator.of(context).push(PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SettingsWidget(),
-      ));
-      usernameController.clear();
-      passwordController.clear();
-      confirmPasswordController.clear();
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        launchSnackbar(AppLocalizations.of(context)!.weakPasswordMessage);
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        launchSnackbar(AppLocalizations.of(context)!.emailAlreadyExistsMessage);
-        print('The account already exists for that email.');
-      }
-    } catch (e) {
-      print(e);
+    if (email.isEmpty) {
+      launchSnackbar(AppLocalizations.of(context)!.emailRequired);
+      return;
+    }
+    if (password != confirm) {
+      launchSnackbar(_passwordMismatchMessage(context));
+      return;
     }
 
-    setState(() {
-      loading = false;
-    });
+    setState(() => loading = true);
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && user.isAnonymous) {
+        final credential = EmailAuthProvider.credential(email: email, password: password);
+        await user.linkWithCredential(credential);
+      } else {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+      }
+
+      if (!mounted) return;
+      launchSnackbar(AppLocalizations.of(context)!.createUserMessage);
+      closeAuthFlow(context, true);
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      if (e.code == 'weak-password') {
+        launchSnackbar(AppLocalizations.of(context)!.weakPasswordMessage);
+      } else if (e.code == 'email-already-in-use') {
+        launchSnackbar(AppLocalizations.of(context)!.emailAlreadyExistsMessage);
+      } else if (e.code == 'invalid-email') {
+        launchSnackbar(AppLocalizations.of(context)!.emailRequired);
+      } else {
+        launchSnackbar(e.message ?? e.code);
+      }
+    } catch (e) {
+      if (mounted) launchSnackbar(e.toString());
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          elevation: 0,
-          title: Text(""),
-          backgroundColor: Colors.transparent,
-          iconTheme: IconThemeData(
-            color: AppColors.font_black, //change your color here
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(''),
+        backgroundColor: Colors.transparent,
+      ),
+      body: Container(
+        decoration: NgenTheme.loginBackground(),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 120,
+                  child: SvgPicture.asset('assets/images/logo.svg'),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  AppLocalizations.of(context)!.userCreate,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 28),
+                _authField(
+                  controller: usernameController,
+                  icon: MdiIcons.accountCircleOutline,
+                  label: AppLocalizations.of(context)!.email,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+                _authField(
+                  controller: passwordController,
+                  icon: MdiIcons.lockOutline,
+                  label: AppLocalizations.of(context)!.userPassword,
+                  obscure: true,
+                ),
+                const SizedBox(height: 16),
+                _authField(
+                  controller: confirmPasswordController,
+                  icon: MdiIcons.lockCheckOutline,
+                  label: AppLocalizations.of(context)!.confirmUserPassword,
+                  obscure: true,
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: loading ? null : signUp,
+                    child: loading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white),
+                          )
+                        : Text(AppLocalizations.of(context)!.signup),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        body: Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: SingleChildScrollView(
-                child: Column(children: [
-              Container(
-                alignment: Alignment.center,
-                child: SvgPicture.asset(
-                  'assets/images/logo.svg',
-                  color: AppColors.primary,
-                ),
-              ),
-              SizedBox(
-                height: 40,
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 50.0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Material(
-                        elevation: 5,
-                        borderRadius: BorderRadius.circular(100.0),
-                        child: TextField(
-                          controller: usernameController,
-                          autofocus: false,
-                          decoration: InputDecoration(
-                              filled: true,
-                              fillColor: AppColors.white,
-                              prefixIcon: Icon(
-                                MdiIcons.accountCircleOutline,
-                                color: AppColors.primary,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              labelText: AppLocalizations.of(context)!.email),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 50.0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Material(
-                        elevation: 5,
-                        borderRadius: BorderRadius.circular(100.0),
-                        child: TextField(
-                          controller: passwordController,
-                          autofocus: false,
-                          obscureText: true,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          decoration: InputDecoration(
-                              filled: true,
-                              fillColor: AppColors.white,
-                              prefixIcon: Icon(
-                                MdiIcons.lockOutline,
-                                color: AppColors.primary,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              labelText: AppLocalizations.of(context)!.userPassword),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 50.0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Material(
-                        elevation: 5,
-                        borderRadius: BorderRadius.circular(100.0),
-                        child: TextField(
-                          controller: confirmPasswordController,
-                          autofocus: false,
-                          obscureText: true,
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          decoration: InputDecoration(
-                              filled: true,
-                              fillColor: AppColors.white,
-                              prefixIcon: Icon(
-                                MdiIcons.lockOutline,
-                                color: AppColors.primary,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              labelText: AppLocalizations.of(context)!.confirmUserPassword),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                  child: MaterialButton(
-                height: 45,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(200))),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                child: loading
-                    ? CircularProgressIndicator(
-                        color: AppColors.white,
-                      )
-                    : Text(
-                        AppLocalizations.of(context)!.signup,
-                        style: new TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 20.0,
-                          color: Colors.white,
-                        ),
-                      ),
-                onPressed: () {
-                  signUp();
-                },
-                splashColor: Colors.white,
-              )),
-            ]))));
+      ),
+    );
+  }
+
+  Widget _authField({
+    required TextEditingController controller,
+    required IconData icon,
+    required String label,
+    bool obscure = false,
+    TextInputType? keyboardType,
+  }) {
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(28),
+      child: TextField(
+        controller: controller,
+        obscureText: obscure,
+        enableSuggestions: !obscure,
+        autocorrect: false,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: AppColors.primary),
+          labelText: label,
+        ),
+      ),
+    );
   }
 }
-

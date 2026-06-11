@@ -5,6 +5,7 @@ import 'package:app/src/pages/chat/chat.dart';
 import 'package:app/src/pages/tour/download_tour.dart';
 import 'package:app/src/pages/tour/recommendations.dart';
 import 'package:app/src/pages/tour/steps/tour_steps.dart';
+import 'package:app/src/widgets/tour_access_gate.dart';
 import 'package:app/src/util/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,9 +24,24 @@ class TourCard extends StatefulWidget {
   final String managerId;
   final Map<String, dynamic> likeUsers;
   final bool offline;
+  final int price;
+  final String currency;
+  final bool isPresentation;
 
-  TourCard(this.imgPath, this.title, this.description, this.categories, this.tier, this.tourId, this.managerId, this.likeUsers,
-      [this.offline = false]);
+  TourCard(
+    this.imgPath,
+    this.title,
+    this.description,
+    this.categories,
+    this.tier,
+    this.tourId,
+    this.managerId,
+    this.likeUsers, [
+    this.offline = false,
+    this.price = 0,
+    this.currency = 'CLP',
+    this.isPresentation = false,
+  ]);
 
   @override
   State<TourCard> createState() => TourCardState();
@@ -330,7 +346,15 @@ class TourCardState extends State<TourCard> {
                   SizedBox(
                     height: 10,
                   ),
-                  TourStepsWidget(widget.tourId, widget.imgPath, widget.offline),
+                  TourAccessGate(
+                    tourId: widget.tourId,
+                    tier: widget.tier,
+                    price: widget.price,
+                    currency: widget.currency,
+                    offline: widget.offline,
+                    isPresentation: widget.isPresentation,
+                    child: TourStepsWidget(widget.tourId, widget.imgPath, widget.offline),
+                  ),
                   SizedBox(
                     height: 10,
                   ),

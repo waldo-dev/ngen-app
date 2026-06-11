@@ -1,6 +1,8 @@
-﻿import 'package:app/providers/locale_provider.dart';
+﻿import 'package:app/core/locale/supported_app_locales.dart';
+import 'package:app/providers/locale_provider.dart';
 import 'package:app/src/pages/profile/edit_profile.dart';
 import 'package:app/src/pages/profile/languages_screen.dart';
+import 'package:app/src/pages/profile/login/auth_navigation.dart';
 import 'package:app/src/pages/profile/login/login.dart';
 import 'package:app/src/util/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -80,37 +82,13 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   }
 
   Widget buildSettingsList(BuildContext context, LocaleProvider provider, String locale) {
-    var languages = [
-      {"name": "English", "code": "en"},
-      {"name": "Español", "code": "es"},
-      {"name": "Français", "code": "fr"},
-      {"name": "Deutsch", "code": "de"},
-      {"code": 'nl', "name": 'Nederlands'},
-      {"code": 'ru', "name": 'русский'},
-      {"name": "Italiano", "code": "it"},
-      {"name": "Português", "code": "pt"},
-      {"code": 'cy', "name": 'Cymraeg'},
-      {"code": 'is', "name": 'Íslenska'},
-      {"code": 'sv', "name": 'Svenska'},
-      {"code": 'ro', "name": 'Română'},
-      {"code": 'pl', "name": 'Język Polski'},
-      {"code": 'tr', "name": 'Türkçe'},
-      {"code": 'da', "name": 'Dansk'},
-      {"code": 'nb', "name": 'Norsk'},
-      {"code": 'ar', "name": 'اَلْعَرَبِيَّةُ'},
-      {"name": "日本語", "code": "ja"},
-      {"code": 'ko', "name": '한국어 / 조선말'},
-      {"name": "中文", "code": "zh"},
-    ];
-
-    String codeToString(String locale) {
-      final lang = languages.where((element) => element["code"] == locale);
-      if (lang.isEmpty) return 'English';
-      final name = lang.first["name"];
-      return name is String ? name : '$name';
+    String codeToString(String code) {
+      final match = SupportedAppLocales.options.where((e) => e['code'] == code);
+      if (match.isEmpty) return 'Español';
+      return match.first['name']!;
     }
 
-    final String langCode = provider.locale?.languageCode ?? locale;
+    final String langCode = provider.locale?.languageCode ?? SupportedAppLocales.normalize(locale).languageCode;
     return SettingsList(
       lightTheme: const SettingsThemeData(settingsListBackground: AppColors.white),
       sections: [
@@ -206,21 +184,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                       ),
                 onPressed: (context) {
                   if (isAnonymous) {
-                    Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(2.0, 0.0);
-                        const end = Offset.zero;
-                        const curve = Curves.fastLinearToSlowEaseIn;
-
-                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-                        return SlideTransition(
-                          position: animation.drive(tween),
-                          child: child,
-                        );
-                      },
-                    ));
+                    pushAuthScreen(context, LoginScreen()).then((_) {
+                      if (mounted) checkAnonymous();
+                    });
                   } else {
                     signOut();
                   }

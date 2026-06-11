@@ -18,16 +18,6 @@ class _CollectionWidgetState extends State<CollectionWidget> {
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.font_light,
-            unselectedLabelStyle: TextStyle(
-                fontFamily: "Open Sans",
-                fontWeight: FontWeight.w600,
-                fontSize: 14),
-            labelStyle: TextStyle(
-                fontFamily: "Open Sans",
-                fontWeight: FontWeight.w600,
-                fontSize: 14),
             labelPadding: EdgeInsets.all(0),
             tabs: [
               Tab(text: AppLocalizations.of(context)!.downloads.toUpperCase()),

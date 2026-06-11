@@ -2,11 +2,18 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color primary = Color.fromARGB(255, 114, 37, 215);
-  static const Color secondary = Color.fromARGB(255, 106, 114, 118);
-  static const Color font_light = Color.fromARGB(255, 106, 114, 118);
-  static const Color font_bold = Color.fromARGB(255, 54, 54, 54);
-  static const Color font_black = Color.fromARGB(255, 36, 37, 61);
+  /// Brand purple — matches ngentours.com / webapp `.chat-msg.my-msg`.
+  static const Color primary = Color(0xFF7225D7);
+  static const Color secondary = Color(0xFF6A7276);
+  static const Color font_light = Color(0xFF6A7276);
+  static const Color font_bold = Color(0xFF363636);
+  static const Color font_black = Color(0xFF24253D);
+  /// Muted copy (web login `.google-sign-in-text`).
+  static const Color textMuted = Color(0xFF757575);
+  /// Login / marketing accent (web `.login` background).
+  static const Color accentLight = Color(0xFFC7A4FF);
+  /// Selected bottom-nav pill (web nav highlight).
+  static const Color navSelected = Color(0xFFF3F4FA);
   static const Color inactive = Colors.grey;
   static const Color white = Colors.white;
   static const Color lightgrey = Colors.white60;

@@ -44,11 +44,25 @@ class TourListWidgetState extends State<TourListWidget> {
         widget.tourList[0]['id'],
         tourCreatedByAsString(widget.tourList[0]['createdBy']),
         widget.tourList[0]['likeUsers'] ?? {},
-        widget.offline);
+        widget.offline,
+        tourPriceFromDoc(widget.tourList[0]),
+        tourCurrencyFromDoc(widget.tourList[0]),
+        tourIsPresentationFromDoc(widget.tourList[0]));
 
     expandedCards = widget.tourList
-        .map((item) => TourCard(item['image'], localizedFirestoreString(item['title'], locale), localizedFirestoreString(item['description'], locale), item['categories'], item['tier'], item['id'],
-            tourCreatedByAsString(item['createdBy']), item['likeUsers'] ?? {}, widget.offline))
+        .map((item) => TourCard(
+            item['image'],
+            localizedFirestoreString(item['title'], locale),
+            localizedFirestoreString(item['description'], locale),
+            item['categories'],
+            item['tier'],
+            item['id'],
+            tourCreatedByAsString(item['createdBy']),
+            item['likeUsers'] ?? {},
+            widget.offline,
+            tourPriceFromDoc(item),
+            tourCurrencyFromDoc(item),
+            tourIsPresentationFromDoc(item)))
         .toList();
   }
 
@@ -82,7 +96,10 @@ class TourListWidgetState extends State<TourListWidget> {
                   widget.tourList[index]['id'],
                   tourCreatedByAsString(widget.tourList[index]['createdBy']),
                   widget.tourList[index]['likeUsers'] ?? {},
-                  widget.offline),
+                  widget.offline,
+                  tourPriceFromDoc(widget.tourList[index]),
+                  tourCurrencyFromDoc(widget.tourList[index]),
+                  tourIsPresentationFromDoc(widget.tourList[index])),
             ));
       },
     );

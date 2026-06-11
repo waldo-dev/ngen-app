@@ -1,0 +1,6 @@
+{
+  "mode": "development",
+  "host": "localhost",
+  "devEmail": "operator@ngen.test",
+  "devPassword": "operator123"
+}

@@ -164,11 +164,14 @@ class MapScreenState extends State<MapScreen> {
         });
       }
 
-      toursLoaded = toursOnline!.docs.map((e) {
-        Map<String, dynamic> tour = e.data();
-        tour['id'] = e.id;
-        return tour;
-      }).toList();
+      toursLoaded = toursOnline!.docs
+          .map((e) {
+            Map<String, dynamic> tour = e.data();
+            tour['id'] = e.id;
+            return tour;
+          })
+          .where(tourEligibleForMap)
+          .toList();
       return toursLoaded;
     }
 
@@ -194,11 +197,14 @@ class MapScreenState extends State<MapScreen> {
       } else {
         toursOnline = await FirebaseFirestore.instance.collection('tours').doc('cl').collection('list').where('active', isEqualTo: true).get();
       }
-      toursLoaded = toursOnline.docs.map((e) {
-        Map<String, dynamic> tour = e.data();
-        tour['id'] = e.id;
-        return tour;
-      }).toList();
+      toursLoaded = toursOnline.docs
+          .map((e) {
+            Map<String, dynamic> tour = e.data();
+            tour['id'] = e.id;
+            return tour;
+          })
+          .where(tourEligibleForMap)
+          .toList();
     } else {
       toursLoaded = await getDownloadedTours();
     }

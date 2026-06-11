@@ -123,10 +123,9 @@ class SimpleTourCardState extends State<SimpleTourCard> {
                         flex: 9,
                         child: Text(
                           widget.title,
-                          style: TextStyle(
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: Colors.white,
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),

@@ -57,6 +57,7 @@ dependencies:
   # 7.x forces flutter_svg ^2; we pin flutter_svg 1.x for legacy marker SVG code.
   flag: ^6.0.0
   global_configuration: ^2.0.0
+  google_fonts: ^6.2.1
   google_maps_flutter: ^2.0.6
   carousel_slider: ^5.1.2
   provider: ^6.0.0
@@ -78,6 +79,7 @@ dependencies:
   translator: ^1.0.4+1
   im_stepper: ^1.0.1+1
   share_plus: ^11.0.0
+  app_links: ^6.4.1
   flutter_polyline_points: ^2.1.0
   # Vendored 5.0.2 + ThemeData fix for Flutter 3.10+ (see packages/persistent_bottom_nav_bar).
   persistent_bottom_nav_bar:
@@ -116,25 +118,4 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  fonts:
-    - family: Open Sans
-      fonts:
-        - asset: assets/fonts/OpenSans-Regular.ttf
-    - family: Open Sans
-      fonts:
-        - asset: assets/fonts/OpenSans-Regular.ttf
-        - asset: assets/fonts/OpenSans-SemiBold.ttf
-          weight: 600
-    - family: Open Sans
-      fonts:
-        - asset: assets/fonts/OpenSans-Regular.ttf
-        - asset: assets/fonts/OpenSans-Bold.ttf
-          weight: 700
-
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+  # Open Sans via package:google_fonts (same source as ngentours.com landing).

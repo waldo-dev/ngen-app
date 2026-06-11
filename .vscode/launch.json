@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "NGen · local (emulador Android)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--dart-define=NGEN_ENV=local"]
+    },
+    {
+      "name": "NGen · local (teléfono físico LAN)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=NGEN_ENV=local",
+        "--dart-define=NGEN_HOST=192.168.100.9"
+      ]
+    },
+    {
+      "name": "NGen · production",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--dart-define=NGEN_ENV=production"]
+    }
+  ]
+}

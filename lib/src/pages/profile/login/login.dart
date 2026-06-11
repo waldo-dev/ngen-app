@@ -2,6 +2,8 @@
 import 'dart:math';
 import 'dart:io' show Platform;
 
+import 'package:app/core/theme/ngen_theme.dart';
+import 'package:app/src/pages/profile/login/auth_navigation.dart';
 import 'package:app/src/pages/profile/login/recover_password.dart';
 import 'package:app/src/pages/profile/login/sign_up.dart';
 import 'package:app/src/pages/profile/settings.dart';
@@ -45,10 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: usernameController.text, password: passwordController.text);
       launchSnackbar(AppLocalizations.of(context)!.loginSuccessful);
-
-      Navigator.of(context).push(PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SettingsWidget(),
-      ));
+      closeAuthFlow(context, true);
       usernameController.clear();
       passwordController.clear();
     } on FirebaseAuthException catch (e) {
@@ -162,17 +161,16 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           centerTitle: true,
-          elevation: 0,
-          title: Text(""),
+          title: const Text(''),
           backgroundColor: Colors.transparent,
-          iconTheme: IconThemeData(
-            color: AppColors.font_black, //change your color here
-          ),
         ),
-        body: Padding(
-            padding: EdgeInsets.only(top: 10),
+        body: Container(
+          decoration: NgenTheme.loginBackground(),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10),
             child: SingleChildScrollView(
                 child: Column(children: [
               Container(
@@ -273,21 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textStyle: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                         onPressed: () {
-                          Navigator.of(context).push(PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => RecoverPasswordScreen(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              const begin = Offset(2.0, 0.0);
-                              const end = Offset.zero;
-                              const curve = Curves.fastLinearToSlowEaseIn;
-
-                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-                              return SlideTransition(
-                                position: animation.drive(tween),
-                                child: child,
-                              );
-                            },
-                          ));
+                          pushAuthScreen(context, RecoverPasswordScreen());
                         },
                         child: Text(AppLocalizations.of(context)!.recoverPassword),
                       ),
@@ -331,21 +315,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textStyle: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                         onPressed: () {
-                          Navigator.of(context).push(PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => SignUpScreen(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              const begin = Offset(2.0, 0.0);
-                              const end = Offset.zero;
-                              const curve = Curves.fastLinearToSlowEaseIn;
-
-                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-                              return SlideTransition(
-                                position: animation.drive(tween),
-                                child: child,
-                              );
-                            },
-                          ));
+                          pushAuthScreen(context, const SignUpScreen());
                         },
                         child: Text(AppLocalizations.of(context)!.userCreate),
                       ),
@@ -428,7 +398,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: CircleBorder(),
                         )),
                   ])),
-            ]))));
+            ])),
+          ),
+        ),
+    );
   }
 }
 

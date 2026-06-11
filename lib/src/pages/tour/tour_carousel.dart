@@ -77,7 +77,10 @@ class TourCarouselWidgetState extends State<TourCarouselWidget> {
           widget.tourList[0]['id'],
           tourCreatedByAsString(widget.tourList[0]['createdBy']),
           widget.tourList[0]['likeUsers'] ?? {},
-          widget.offline);
+          widget.offline,
+          tourPriceFromDoc(widget.tourList[0]),
+          tourCurrencyFromDoc(widget.tourList[0]),
+          tourIsPresentationFromDoc(widget.tourList[0]));
     }
 
     expandedCards = widget.tourList
@@ -90,7 +93,10 @@ class TourCarouselWidgetState extends State<TourCarouselWidget> {
             item['id'],
             tourCreatedByAsString(item['createdBy']),
             item['likeUsers'] ?? {},
-            widget.offline))
+            widget.offline,
+            tourPriceFromDoc(item),
+            tourCurrencyFromDoc(item),
+            tourIsPresentationFromDoc(item)))
         .toList();
   }
 
